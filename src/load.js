@@ -1,7 +1,21 @@
 clippy.BASE_PATH = 'https://s3.amazonaws.com/clippy.js/Agents/';
 
-clippy.load = function (name, successCb, failCb) {
+clippy.load = function (name, params, successCb, failCb) {
     var path = clippy.BASE_PATH + name;
+
+    var set_params = undefined;
+
+    if (params == undefined) {
+        set_params = {};
+    } else {
+        set_params = {
+            "parent": params["parent"] != undefined ? params["parent"] : undefined,
+            "audio": params["audio"] != false,
+            "canDoubleClick": params["canDoubleClick"] != false,
+            "canDrag": params["canDrag"] != false
+        }
+    }
+
 
     var mapDfd = clippy.load._loadMap(path);
     var agentDfd = clippy.load._loadAgent(name, path);
@@ -20,7 +34,7 @@ clippy.load = function (name, successCb, failCb) {
 
     // wrapper to the success callback
     var cb = function () {
-        var a = new clippy.Agent(path, data,sounds);
+        var a = new clippy.Agent(path, data, sounds, set_params);
         successCb(a);
     };
 

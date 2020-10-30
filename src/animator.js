@@ -3,7 +3,7 @@
  *
  * @constructor
  */
-clippy.Animator = function (el, path, data, sounds) {
+clippy.Animator = function (el, path, data, sounds, params) {
     this._el = el;
     this._data = data;
     this._path = path;
@@ -18,6 +18,7 @@ clippy.Animator = function (el, path, data, sounds) {
     this.preloadSounds(sounds);
     this._overlays = [this._el];
     var curr = this._el;
+    this.canPlay = params["audio"];
 
     this._setupElement(this._el);
     for (var i = 1; i < this._data.overlayCount; i++) {
@@ -157,7 +158,7 @@ clippy.Animator.prototype = {
         }
 
         this._draw();
-        this._playSound();
+        if(this.canPlay) this._playSound();
 
         this._loop = window.setTimeout($.proxy(this._step, this), this._currentFrame.duration);
 

@@ -5,20 +5,24 @@ var clippy = {};
  *
  * @constructor
  */
-clippy.Agent = function (path, data, sounds) {
+clippy.Agent = function (path, data, sounds, params) {
     this.path = path;
 
     this._queue = new clippy.Queue($.proxy(this._onQueueEmpty, this));
 
     this._el = $('<div class="clippy"></div>').hide();
 
-    $(document.body).append(this._el);
+    if(params["parent"] == undefined) {
+        $(document.body).append(this._el);
+    } else {
+        $(params["parent"]).append(this._el);
+    }
 
-    this._animator = new clippy.Animator(this._el, path, data, sounds);
+    this._animator = new clippy.Animator(this._el, path, data, sounds, params);
 
     this._balloon = new clippy.Balloon(this._el);
 
-    this._setupEvents();
+    this._setupEvents(params);
 };
 
 clippy.Agent.prototype = {
@@ -334,17 +338,19 @@ clippy.Agent.prototype = {
 
     /**************************** Events ************************************/
 
-    _setupEvents:function () {
+    _setupEvents:function (params) {
         $(window).on('resize', $.proxy(this.reposition, this));
 
-        this._el.on('mousedown', $.proxy(this._onMouseDown, this));
+        this._el.on('mousedown', $.proxy(this._onMouseDown, this, params));
 
-        this._el.on('dblclick', $.proxy(this._onDoubleClick, this));
+        this._el.on('dblclick', $.proxy(this._onDoubleClick, this, params));
     },
 
-    _onDoubleClick:function () {
-        if (!this.play('ClickedOn')) {
-            this.animate();
+    _onDoubleClick:function (params, e) {
+        if(params["canDoubleClick"]) {
+            if (!this.play('ClickedOn')) {
+                this.animate();
+            }
         }
     },
 
@@ -382,15 +388,18 @@ clippy.Agent.prototype = {
         this._balloon.reposition();
     },
 
-    _onMouseDown:function (e) {
+    _onMouseDown:function (params, e) {
         e.preventDefault();
-        this._startDrag(e);
+
+        if(params["canDrag"]) {
+            this._startDrag(e);
+        }
     },
 
 
     /**************************** Drag ************************************/
 
-    _startDrag:function (e) {
+    _startDrag:function (e, params) {
         // pause animations
         this.pause();
         this._balloon.hide(true);
