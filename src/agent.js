@@ -374,6 +374,9 @@ clippy.Agent.prototype = {
             left = wW - bW - m;
         }
 
+        this._targetX = left;
+        this._targetY = top;
+
         this._el.css({left:left, top:top});
         // reposition balloon
         this._balloon.reposition();
